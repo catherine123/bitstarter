@@ -1,7 +1,3 @@
-;; This buffer is for notes you don't want to save, and for Lisp evaluation.
-;; If you want to create a file, visit that file with C-x C-f,
-;; then enter the text in that file's own buffer.
-
 #!/usr/bin/env node
 /*
 Automatically grade files for the presence of specified HTML tags/attributes.
@@ -76,3 +72,24 @@ if(require.main == module) {
 } else {
     exports.checkHtmlFile = checkHtmlFile;
 }
+ if (program.url) {
+        rest.get(program.url).on('complete',function(result) {
+            if (result instanceof Error) {
+                sys.puts('Error: ' + result.message);
+            } else {
+                var checkJson1 = checkHtmlURL(result, program.checks);
+                getResult(checkJson1);}
+        });
+    } else {
+    var checkJson = checkHtmlFile(program.file, program.checks);
+    getResult(checkJson);}
+var checkHtmlURL = function(htmlfile, checksfile) {
+    $ = cheerio.load(htmlfile);
+    var checks = loadChecks(checksfile).sort();
+    var out = {};
+    for(var ii in checks) {
+        var present = $(checks[ii]).length > 0;
+        out[checks[ii]] = present;
+    }
+    return out;
+};
